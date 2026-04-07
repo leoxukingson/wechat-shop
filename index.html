@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精选好物 - 微信直购</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #07c160 0%, #05a049 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .slogan {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 导航 */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            font-size: 1rem;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: #07c160;
+            border-bottom-color: #07c160;
+            font-weight: bold;
+        }
+        
+        /* 产品列表 */
+        .products {
+            padding: 15px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .product-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .product-price {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .price-current {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e4393c;
+        }
+        
+        .price-original {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 5px;
+        }
+        
+        .btn-buy {
+            background: linear-gradient(135deg, #07c160 0%, #05a049 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-buy:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+        }
+        
+        /* 底部导航 */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        .nav-item.active {
+            color: #07c160;
+        }
+        
+        /* 购物车 */
+        .cart-icon {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #07c160;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+            z-index: 1000;
+            cursor: pointer;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e4393c;
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .product-image {
+                height: 180px;
+            }
+            
+            .product-title {
+                font-size: 1rem;
+            }
+            
+            .price-current {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #07c160;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="logo">
+                <span>🛒</span>
+                <span>精选好物</span>
+            </div>
+            <div class="slogan">微信直购 · 正品保障 · 快速发货</div>
+        </div>
+        
+        <!-- 导航标签 -->
+        <div class="nav-tabs">
+            <a href="#" class="tab active" onclick="showCategory('all')">全部商品</a>
+            <a href="#" class="tab" onclick="showCategory('health')">保健品</a>
+            <a href="#" class="tab" onclick="showCategory('skincare')">护肤品</a>
+            <a href="#" class="tab" onclick="showCategory('personal')">个护用品</a>
+        </div>
+        
+        <!-- 产品列表 -->
+        <div class="products" id="productsContainer">
+            <!-- 产品将通过JavaScript动态加载 -->
+        </div>
+        
+        <!-- 购物车按钮 -->
+        <div class="cart-icon" onclick="showCart()">
+            🛒
+            <div class="cart-badge" id="cartBadge">0</div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="footer-nav">
+        <a href="#" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </a>
+        <a href="#" class="nav-item" onclick="showCategory('health')">
+            <div class="nav-icon">💊</div>
+            <div>保健品</div>
+        </a>
+        <a href="#" class="nav-item" onclick="showCategory('skincare')">
+            <div class="nav-icon">💆</div>
+            <div>护肤品</div>
+        </a>
+        <a href="#" class="nav-item" onclick="showProfile()">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </a>
+    </div>
+    
+    <script>
+        // 产品数据
+        const products = [
+            {
+                id: 1,
+                name: "朵蕾蜜天鹅奢绒250日用卫生巾",
+                description: "8片装，超薄透气，棉柔表层，舒适亲肤",
+                category: "personal",
+                price: 26,
+                originalPrice: 32,
+                image: "🩲",
+                stock: 50,
+                sales: 128
+            },
+            {
+                id: 2,
+                name: "渡美精华保湿水20ML (中小样)",
+                description: "日本原装，试用装，保湿滋润，适合所有肤质",
+                category: "skincare",
+                price: 42,
+                originalPrice: 50,
+                image: "💧",
+                stock: 100,
+                sales: 89
+            },
+            {
+                id: 3,
+                name: "双心®辅酶Q10软胶囊",
+                description: "60粒，德国进口，呵护心脏健康，增强免疫力",
+                category: "health",
+                price: 135,
+                originalPrice: 168,
+                image: "💊",
+                stock: 30,
+                sales: 45
+            },
+            {
+                id: 4,
+                name: "双心®PQQ胶原蛋白多肽",
+                description: "10支，抗衰老，美容养颜，改善皮肤弹性",
+                category: "health",
+                price: 380,
+                originalPrice: 450,
+                image: "✨",
+                stock: 20,
+                sales: 32
+            },
+            {
+                id: 5,
+                name: "渡美甘草平衡水120ML",
+                description: "日本TUNEMAKERS，平衡水油，舒缓肌肤",
+                category: "skincare",
+                price: 235,
+                originalPrice: 280,
+                image: "🌿",
+                stock: 25,
+                sales: 67
+            },
+            {
+                id: 6,
+                name: "朵蕾蜜女性卫生裤",
+                description: "M-L码，4片装，安心防漏，整夜舒睡",
+                category: "personal",
+                price: 28,
+                originalPrice: 35,
+                image: "🩳",
+                stock: 40,
+                sales: 92
+            }
+        ];
+        
+        // 购物车
+        let cart = [];
+        
+        // 初始化页面
+        function initPage() {
+            showCategory('all');
+            updateCartBadge();
+        }
+        
+        // 显示分类产品
+        function showCategory(category) {
+            // 更新导航标签
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示对应分类
+            event?.currentTarget?.classList.add('active');
+            
+            // 过滤产品
+            let filteredProducts = products;
+            if (category !== 'all') {
+                filteredProducts = products.filter(p => p.category === category);
+            }
+            
+            // 渲染产品
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                container.innerHTML = '<div class="loading">暂无商品</div>';
+                return;
+            }
+            
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <span style="font-size: 3rem;">${product.image}</span>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-desc">${product.description}</div>
+                        <div style="font-size: 0.8rem; color: #999; margin-bottom: 10px;">
+                            库存: ${product.stock}件 | 已售: ${product.sales}件
+                        </div>
+                        <div class="product-price">
+                            <div>
+                                <span class="price-current">¥${product.price}</span>
+                                <span class="price-original">¥${product.originalPrice}</span>
+                            </div>
+                            <button class="btn-buy" onclick="addToCart(${product.id})">立即购买</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+        
+        // 添加到购物车
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            // 检查库存
+            if (product.stock <= 0) {
+                alert('商品已售罄');
+                return;
+            }
+            
+            // 添加到购物车
+            const cartItem = cart.find(item => item.id === productId);
+            if (cartItem) {
+                cartItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    image: product.image
+                });
+            }
+            
+            // 更新库存和销量（模拟）
+            product.stock -= 1;
+            product.sales += 1;
+            
+            // 更新UI
+            updateCartBadge();
+            showCategory(document.querySelector('.tab.active').onclick.toString().includes('all') ? 'all' : 'health');
+            
+            alert(`已添加到购物车: ${product.name}\n价格: ¥${product.price}`);
+        }
+        
+        // 更新购物车徽章
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+        }
+        
+        // 显示购物车
+        function showCart() {
+            if (cart.length === 0) {
+                alert('购物车是空的');
+                return;
+            }
+            
+            let cartContent = '🛒 购物车内容:\n\n';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                cartContent += `${item.name} × ${item.quantity} = ¥${itemTotal}\n`;
+            });
+            
+            cartContent += `\n总计: ¥${total}\n\n`;
+            
+            if (confirm(cartContent + '是否前往结算？')) {
+                checkout();
+            }
+        }
+        
+        // 结算
+        function checkout() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // 在实际应用中，这里会跳转到支付页面
+            // 现在显示模拟支付
+            const paymentWindow = window.open('', '支付', 'width=400,height=600');
+            paymentWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>微信支付</title>
+                    <style>
+                        body { font-family: -apple-system, sans-serif; padding: 20px; }
+                        .payment-container { text-align: center; }
+                        .amount { font-size: 2rem; color: #e4393c; margin: 20px 0; }
+                        .qr-code { width: 200px; height: 200px; background: #f0f0f0; margin: 20px auto; display: flex; align-items: center; justify-content: center; }
+                        .btn { background: #07c160; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="payment-container">
+                        <h2>微信支付</h2>
+                        <div class="amount">¥${total}</div>
+                        <div class="qr-code">
+                            支付二维码<br>(模拟)
+                        </div>
+                        <p>请使用微信扫描二维码完成支付</p>
+                        <button class="btn" onclick="window.close(); alert('支付成功！\\n订单已确认，我们将尽快发货
