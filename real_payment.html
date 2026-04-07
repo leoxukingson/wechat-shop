@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付确认 - 精选好物</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: #07c160;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .order-info {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e4393c;
+            margin-top: 15px;
+            text-align: right;
+        }
+        
+        .payment-methods {
+            padding: 20px;
+        }
+        
+        .method {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .method:hover {
+            border-color: #07c160;
+            background: #f8fff9;
+        }
+        
+        .method.active {
+            border-color: #07c160;
+            background: #f8fff9;
+        }
+        
+        .method-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .method-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .qr-container.active {
+            display: block;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            margin: 0 auto 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .instructions {
+            background: #fff8e1;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .contact {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .contact h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .wechat-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #07c160;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            display: block;
+            width: calc(100% - 40px);
+            margin: 20px;
+            padding: 15px;
+            background: #07c160;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn:active {
+            background: #05a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>支付确认</h2>
+            <p>请选择支付方式完成订单</p>
+        </div>
+        
+        <div class="order-info">
+            <h3>订单信息</h3>
+            <div class="order-item">
+                <span>商品</span>
+                <span id="productName">朵蕾蜜卫生巾</span>
+            </div>
+            <div class="order-item">
+                <span>数量</span>
+                <span id="productQuantity">1</span>
+            </div>
+            <div class="order-item">
+                <span>单价</span>
+                <span id="productPrice">¥26</span>
+            </div>
+            <div class="order-item">
+                <span>运费</span>
+                <span>¥0</span>
+            </div>
+            <div class="total" id="totalAmount">总计: ¥26</div>
+        </div>
+        
+        <div class="payment-methods">
+            <h3>选择支付方式</h3>
+            
+            <div class="method active" onclick="selectPayment('wechat')">
+                <div class="method-header">
+                    <div class="method-icon">💳</div>
+                    <div>
+                        <h4>微信支付</h4>
+                        <p>扫码支付，即时到账</p>
+                    </div>
+                </div>
+                <div class="qr-container active" id="wechatQr">
+                    <div class="qr-code">
+                        微信收款码<br>
+                        (请使用真实二维码)
+                    </div>
+                    <p>打开微信扫一扫完成支付</p>
+                </div>
+            </div>
+            
+            <div class="method" onclick="selectPayment('alipay')">
+                <div class="method-header">
+                    <div class="method-icon">💰</div>
+                    <div>
+                        <h4>支付宝</h4>
+                        <p>扫码支付，安全便捷</p>
+                    </div>
+                </div>
+                <div class="qr-container" id="alipayQr">
+                    <div class="qr-code">
+                        支付宝收款码<br>
+                        (请使用真实二维码)
+                    </div>
+                    <p>打开支付宝扫一扫完成支付</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h4>支付说明：</h4>
+            <ol>
+                <li>选择微信或支付宝支付</li>
+                <li>使用对应App扫描二维码</li>
+                <li>完成支付后联系客服确认</li>
+                <li>客服微信：leoxukingson</li>
+                <li>确认后24小时内发货</li>
+            </ol>
+        </div>
+        
+        <div class="contact">
+            <h4>需要帮助？</h4>
+            <p>添加客服微信获取支持</p>
+            <div class="wechat-id">leoxukingson</div>
+            <p>工作日 9:00-18:00 在线</p>
+        </div>
+        
+        <button class="btn" onclick="completeOrder()">我已付款，联系客服确认</button>
+    </div>
+    
+    <script>
+        // 从URL获取订单信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product') || '1';
+        const quantity = urlParams.get('quantity') || '1';
+        
+        // 产品信息
+        const products = {
+            '1': { name: '朵蕾蜜卫生巾', price: 26 },
+            '2': { name: '渡美保湿水', price: 42 },
+            '3': { name: '双心辅酶Q10', price: 135 },
+            '4': { name: '双心PQQ胶原蛋白', price: 380 }
+        };
+        
+        const product = products[productId];
+        const total = product.price * parseInt(quantity);
+        
+        // 更新页面信息
+        document.getElementById('productName').textContent = product.name;
+        document.getElementById('productQuantity').textContent = quantity;
+        document.getElementById('productPrice').textContent = '¥' + product.price;
+        document.getElementById('totalAmount').textContent = '总计: ¥' + total;
+        
+        let selectedPayment = 'wechat';
+        
+        function selectPayment(method) {
+            selectedPayment = method;
+            
+            // 更新选中状态
+            document.querySelectorAll('.method').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.qr-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(method + 'Qr').classList.add('active');
+        }
+        
+        function completeOrder() {
+            const orderInfo = {
+                product: product.name,
+                quantity: quantity,
+                total: total,
+                payment: selectedPayment,
+                time: new Date().toLocaleString('zh-CN'),
+                orderId: 'OC' + Date.now()
+            };
+            
+            // 显示订单确认
+            const message = `
+🎉 订单提交成功！
+
+订单号: ${orderInfo.orderId}
+商品: ${orderInfo.product}
+数量: ${orderInfo.quantity}
+总价: ¥${orderInfo.total}
+支付方式: ${selectedPayment === 'wechat' ? '微信支付' : '支付宝'}
+下单时间: ${orderInfo.time}
+
+📱 下一步：
+1. 请完成支付（扫描上方二维码）
+2. 添加客服微信：leoxukingson
+3. 发送订单号确认付款
+4. 等待发货通知
+
+感谢您的购买！
+            `;
+            
+            alert(message);
+            
+            // 在实际应用中，这里会保存订单到数据库
+            // 现在先保存到本地存储
+            localStorage.setItem('lastOrder', JSON.stringify(orderInfo));
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            console.log('支付页面加载完成');
+            console.log('订单信息:', { product, quantity, total });
+        }
+    </script>
+</body>
+</html>
